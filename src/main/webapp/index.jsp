@@ -30,7 +30,7 @@
     <c:if test="${crosses==null}">
         <b>Крестики-нолики</b><br><br>
         <form action="/do/start" method="post">
-            Размер поля: <input type="text" name="size" id="fieldSize" pattern="[0-9]"><br>
+            Размер поля: <input type="text" name="size" id="fieldSize" pattern="[3-9]{1}|[0-9]{2,}"><br>
             <input type="submit" value="Начать">
         </form>
     </c:if>

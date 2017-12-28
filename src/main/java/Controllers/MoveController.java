@@ -72,34 +72,73 @@ public class MoveController {
                 elementCounter++;
             }
         }
-        //проверка победы по строкам и по диагоналям 1ч
+        //проверка по строкам
+        boolean isWinner = false;
         for (int i = 0; i < size; i++) {
-            for (int j = 0; (j + 2) < size; j++) {
+            for (int j = 0; j < (size - 1); j++) {
                 if (field[i][j] >= 0) {
-                    //по строке
-                    if ((field[i][j] == field[i][j + 1]) && (field[i][j] == field[i][j + 2]))
-                        return true;
-                    //по 1-ой части диагоналей
-                    if ((i + 2) < size)
-                        if ((field[i][j] == field[i + 1][j + 1]) && (field[i][j] == field[i + 2][j + 2]))
-                            return true;
+                    if (field[i][j] != field[i][j + 1]) {
+                        isWinner = false;
+                        break;
+                    } else
+                        isWinner = true;
+                } else {
+                    isWinner = false;
+                    break;
                 }
             }
+            if (isWinner)
+                return true;
         }
-        //проверка победы по столбцам и по диагоналям 2ч
-        for (int i = (size - 1); (i - 2) >= 0; i--) {
-            for (int j = 0; j < size; j++) {
+        //проверка по столбцам
+        for (int j = 0; j < size; j++) {
+            for (int i = 0; i < (size - 1); i++) {
                 if (field[i][j] >= 0) {
-                    //по столбцу
-                    if ((field[i][j] == field[i - 1][j]) && (field[i][j] == field[i - 2][j]))
-                        return true;
-                    //по 2-ой части диагоналей
-                    if ((j + 2) < size)
-                        if ((field[i][j] == field[i - 1][j + 1]) && (field[i][j] == field[i - 2][j + 2]))
-                            return true;
+                    if (field[i][j] != field[i + 1][j]) {
+                        isWinner = false;
+                        break;
+                    } else
+                        isWinner = true;
+                } else {
+                    isWinner = false;
+                    break;
                 }
             }
+            if (isWinner)
+                return true;
         }
+        //1ая диагональ
+        for (int i = 0; i < (size - 1); i++) {
+            if (field[i][i] >= 0) {
+                if (field[i][i] != field[i + 1][i + 1]) {
+                    isWinner = false;
+                    break;
+                } else {
+                    isWinner = true;
+                }
+            } else {
+                isWinner = false;
+                break;
+            }
+        }
+        if (isWinner)
+            return true;
+        //2ая диагональ
+        for (int i = (size - 1); i > 0; i--) {
+            if (field[i][size - 1 - i] >= 0) {
+                if (field[i][size - 1 - i] != field[i - 1][size - i]) {
+                    isWinner = false;
+                    break;
+                } else {
+                    isWinner = true;
+                }
+            } else {
+                isWinner = false;
+                break;
+            }
+        }
+        if (isWinner)
+            return true;
         return false;
     }
 }
