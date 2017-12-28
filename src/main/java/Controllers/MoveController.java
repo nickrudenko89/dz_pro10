@@ -34,6 +34,14 @@ public class MoveController {
         int elementId = Integer.valueOf(request.getParameter("id"));
         Random random = new Random();
         int randomNumber = -1;
+        if (crosses.get(elementId) >= 0 || possibleMoves == 0) {
+            model.addAttribute("size", size);
+            model.addAttribute("crosses", crosses);
+            model.addAttribute("haveWinner", false);
+            if (possibleMoves == 0)
+                model.addAttribute("gameFinished", true);
+            return "/index.jsp";
+        }
         crosses.set(elementId, 1);
         possibleMoves--;
         model = checkWinner(model, "You");
@@ -46,7 +54,8 @@ public class MoveController {
             crosses.set(randomNumber, 0);
             possibleMoves--;
             model = checkWinner(model, "Computer");
-        }
+        } else
+            model.addAttribute("gameFinished", true);
         model.addAttribute("size", size);
         model.addAttribute("crosses", crosses);
         return "/index.jsp";
@@ -56,6 +65,7 @@ public class MoveController {
         if (checkField()) {
             model.addAttribute("haveWinner", true);
             model.addAttribute("winner", player);
+            model.addAttribute("gameFinished", true);
             possibleMoves = 0;
         } else {
             model.addAttribute("haveWinner", false);

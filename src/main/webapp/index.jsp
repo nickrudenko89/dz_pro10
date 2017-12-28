@@ -60,7 +60,10 @@
     </c:if>
 </table>
 <c:if test="${haveWinner==true}">
-    ${winner} win!!!<br><a href="/index.jsp">Начать новую игру</a>
+    ${winner} win!!!<br>
+</c:if>
+<c:if test="${gameFinished==true}">
+    <a href="/index.jsp">Начать новую игру</a>
 </c:if>
 </body>
 </html>
