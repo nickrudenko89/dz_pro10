@@ -12,6 +12,8 @@ import java.util.Random;
 @RequestMapping("/do")
 public class MoveController {
 
+    //todo
+    //перейти к сессии
     private ArrayList<Integer> crosses;
     private int size;
     private int possibleMoves;
@@ -29,12 +31,28 @@ public class MoveController {
         return "/index.jsp";
     }
 
+    /*
+    @RequestMapping("/start1")
+    public String startGame1(HttpServletRequest request, Model model) {
+        return "redirect:/start";
+    }
+    @RequestMapping("/start2")
+    public String startGame2(HttpServletRequest request, Model model) {
+        return "redirect:http://tut.by";
+    }
+    */
+
     @RequestMapping("/move")
     public String makeMove(HttpServletRequest request, Model model) {
-        int elementId = Integer.valueOf(request.getParameter("id"));
+        int elementId = -1;
+        try {
+            elementId = Integer.valueOf(request.getParameter("id"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         Random random = new Random();
         int randomNumber = -1;
-        if (crosses.get(elementId) >= 0 || possibleMoves == 0) {
+        if (elementId < 0 || elementId >= (size * size) || crosses.get(elementId) >= 0 || possibleMoves == 0) {
             model.addAttribute("size", size);
             model.addAttribute("crosses", crosses);
             model.addAttribute("haveWinner", false);
@@ -42,18 +60,12 @@ public class MoveController {
                 model.addAttribute("gameFinished", true);
             return "/index.jsp";
         }
-        crosses.set(elementId, 1);
-        possibleMoves--;
-        model = checkWinner(model, "You");
+        fillFieldPosition(model, "You", 1, elementId);
         if (possibleMoves != 0) {
-            for (; ; ) {
+            do {
                 randomNumber = random.nextInt(size * size);
-                if (crosses.get(randomNumber) == -1)
-                    break;
-            }
-            crosses.set(randomNumber, 0);
-            possibleMoves--;
-            model = checkWinner(model, "Computer");
+            } while (crosses.get(randomNumber) != -1);
+            fillFieldPosition(model, "Computer", 0, randomNumber);
         } else
             model.addAttribute("gameFinished", true);
         model.addAttribute("size", size);
@@ -61,7 +73,13 @@ public class MoveController {
         return "/index.jsp";
     }
 
-    private Model checkWinner(Model model, String player) {
+    private void fillFieldPosition(Model model, String player, int side, int movePosition) {
+        crosses.set(movePosition, side);
+        possibleMoves--;
+        checkWinner(model, player);
+    }
+
+    private void checkWinner(Model model, String player) {
         if (checkField()) {
             model.addAttribute("haveWinner", true);
             model.addAttribute("winner", player);
@@ -70,7 +88,6 @@ public class MoveController {
         } else {
             model.addAttribute("haveWinner", false);
         }
-        return model;
     }
 
     private boolean checkField() {
