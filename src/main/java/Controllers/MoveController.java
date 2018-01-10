@@ -1,10 +1,13 @@
 package Controllers;
 
+import Classes.Tictactoe;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -12,85 +15,63 @@ import java.util.Random;
 @RequestMapping("/do")
 public class MoveController {
 
-    //todo
-    //перейти к сессии
-    private ArrayList<Integer> crosses;
-    private int size;
-    private int possibleMoves;
-
     @RequestMapping("/start")
-    public String startGame(HttpServletRequest request, Model model) {
-        size = Integer.valueOf(request.getParameter("size"));
-        possibleMoves = size * size;
-        crosses = new ArrayList<Integer>();
-        for (int i = 0; i < size * size; i++)
-            crosses.add(-1);
-        model.addAttribute("size", size);
-        model.addAttribute("crosses", crosses);
+    public String startGame(@RequestParam(name = "size", required = false, defaultValue = "3") int size, HttpSession session, Model model) {
+        Tictactoe tictactoe = new Tictactoe(size);
+        session.setAttribute("tictactoe", tictactoe);
         model.addAttribute("haveWinner", false);
         return "/index.jsp";
     }
 
-    /*
-    @RequestMapping("/start1")
-    public String startGame1(HttpServletRequest request, Model model) {
-        return "redirect:/start";
-    }
-    @RequestMapping("/start2")
-    public String startGame2(HttpServletRequest request, Model model) {
-        return "redirect:http://tut.by";
-    }
-    */
-
     @RequestMapping("/move")
-    public String makeMove(HttpServletRequest request, Model model) {
+    public String makeMove(HttpServletRequest request, HttpSession session, Model model) {
         int elementId = -1;
         try {
             elementId = Integer.valueOf(request.getParameter("id"));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        Tictactoe tictactoe = (Tictactoe) session.getAttribute("tictactoe");
+        int size = tictactoe.getSize();
         Random random = new Random();
-        int randomNumber = -1;
-        if (elementId < 0 || elementId >= (size * size) || crosses.get(elementId) >= 0 || possibleMoves == 0) {
-            model.addAttribute("size", size);
-            model.addAttribute("crosses", crosses);
+        int randomNumber;
+        if (elementId < 0 || elementId >= (size * size) || tictactoe.getCrosses().get(elementId) >= 0 || tictactoe.getPossibleMoves() == 0) {
             model.addAttribute("haveWinner", false);
-            if (possibleMoves == 0)
+            if (tictactoe.getPossibleMoves() == 0)
                 model.addAttribute("gameFinished", true);
             return "/index.jsp";
         }
-        fillFieldPosition(model, "You", 1, elementId);
-        if (possibleMoves != 0) {
+        fillFieldPosition(tictactoe, model, "You", 1, elementId);
+        if (tictactoe.getPossibleMoves() != 0) {
             do {
                 randomNumber = random.nextInt(size * size);
-            } while (crosses.get(randomNumber) != -1);
-            fillFieldPosition(model, "Computer", 0, randomNumber);
+            } while (tictactoe.getCrosses().get(randomNumber) != -1);
+            fillFieldPosition(tictactoe, model, "Computer", 0, randomNumber);
         } else
             model.addAttribute("gameFinished", true);
-        model.addAttribute("size", size);
-        model.addAttribute("crosses", crosses);
         return "/index.jsp";
     }
 
-    private void fillFieldPosition(Model model, String player, int side, int movePosition) {
-        crosses.set(movePosition, side);
-        possibleMoves--;
-        checkWinner(model, player);
+    private void fillFieldPosition(Tictactoe tictactoe, Model model, String player, int side, int movePosition) {
+        tictactoe.setCrosses(side, movePosition);
+        tictactoe.setPossibleMoves(tictactoe.getPossibleMoves() - 1);
+        checkWinner(tictactoe, model, player);
     }
 
-    private void checkWinner(Model model, String player) {
-        if (checkField()) {
+    private void checkWinner(Tictactoe tictactoe, Model model, String player) {
+        if (checkField(tictactoe)) {
             model.addAttribute("haveWinner", true);
             model.addAttribute("winner", player);
             model.addAttribute("gameFinished", true);
-            possibleMoves = 0;
+            tictactoe.setPossibleMoves(0);
         } else {
             model.addAttribute("haveWinner", false);
         }
     }
 
-    private boolean checkField() {
+    private boolean checkField(Tictactoe tictactoe) {
+        int size = tictactoe.getSize();
+        ArrayList<Integer> crosses = tictactoe.getCrosses();
         int[][] field = new int[size][size];
         int elementCounter = 0;
         for (int i = 0; i < size; i++) {
@@ -164,8 +145,6 @@ public class MoveController {
                 break;
             }
         }
-        if (isWinner)
-            return true;
-        return false;
+        return isWinner;
     }
 }

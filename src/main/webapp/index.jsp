@@ -27,6 +27,8 @@
 </head>
 <body>
 <table>
+    <c:set var="crosses" value="${sessionScope.tictactoe.crosses}"/>
+    <c:set var="size" value="${sessionScope.tictactoe.size}"/>
     <c:if test="${crosses==null}">
         <b>Крестики-нолики</b><br><br>
         <form action="/do/start" method="post">
@@ -63,6 +65,7 @@
     ${winner} win!!!<br>
 </c:if>
 <c:if test="${gameFinished==true}">
+    <% session.invalidate(); %>
     <a href="/index.jsp">Начать новую игру</a>
 </c:if>
 </body>
